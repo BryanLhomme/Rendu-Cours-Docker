@@ -1,0 +1,27 @@
+services:
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: exo5
+      MYSQL_USER: bryan
+      MYSQL_PASSWORD: bryan
+    volumes:
+      - donnees-mysql:/var/lib/mysql
+    networks:
+      - reseau-exo5
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - reseau-exo5
+
+volumes:
+  donnees-mysql:
+
+networks:
+  reseau-exo5:
