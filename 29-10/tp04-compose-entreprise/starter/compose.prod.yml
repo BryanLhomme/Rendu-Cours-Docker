@@ -1,0 +1,59 @@
+# Surcharge prod : docker compose -f compose.yml -f compose.prod.yml up -d --wait
+x-hardening: &hardening
+  read_only: true
+  cap_drop: [ALL]
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  proxy:
+    <<: *hardening
+    deploy:
+      resources:
+        limits: { cpus: "0.50", memory: 128M }
+
+  api:
+    <<: *hardening
+    build: !reset null
+    image: ${REGISTRY:?REGISTRY doit être défini}/shopapi:${VERSION:?VERSION doit être défini}
+    environment:
+      LOG_LEVEL: info
+      NODE_ENV: production
+    tmpfs:
+      - /tmp
+    deploy:
+      replicas: 2
+      resources:
+        limits: { cpus: "0.50", memory: 256M }
+        reservations: { memory: 128M }
+
+  worker:
+    <<: *hardening
+    build: !reset null
+    image: ${REGISTRY:?REGISTRY doit être défini}/shop-worker:${VERSION:?VERSION doit être défini}
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits: { cpus: "0.50", memory: 256M }
+
+  db:
+    <<: *hardening
+    # l'entrypoint postgres démarre en root puis passe en utilisateur postgres
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 512M }
+
+  redis:
+    <<: *hardening
+    # lancé directement en utilisateur redis : l'entrypoint n'a plus besoin de chown
+    user: redis
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits: { cpus: "0.25", memory: 128M }
