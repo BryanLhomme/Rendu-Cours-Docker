@@ -1,0 +1,39 @@
+$ ./backup.sh --cold
+== dump logique
+   /c/Ynov/M2/Dev Docker/docker_ynov_exercices/29-10/tp05-donnees-persistance/starter/backups/shop-20261029-102637.dump (1.6M)
+== sauvegarde brute du volume shopdata_pgdata
+ Container shopdata-db-1 Stopping 
+ Container shopdata-db-1 Stopped 
+ Container shopdata-db-1 Starting 
+ Container shopdata-db-1 Started 
+   (à froid, base arrêtée pendant la copie)
+   /c/Ynov/M2/Dev Docker/docker_ynov_exercices/29-10/tp05-donnees-persistance/starter/backups/pgdata-20261029-102637.tar.gz (13M)
+== rétention : 7 derniers de chaque type
+
+$ docker compose down -v
+ Container shopdata-db-1 Stopping 
+ Container shopdata-db-1 Stopped 
+ Container shopdata-db-1 Removing 
+ Container shopdata-db-1 Removed 
+ Network shopdata_default Removing 
+ Volume shopdata_pgdata Removing 
+ Volume shopdata_pgdata Removed 
+ Network shopdata_default Removed 
+
+$ docker compose up -d --wait
+ Container shopdata-db-1 Healthy 
+
+$ docker compose exec -T db psql -U shop -d shop -c "\dt"
+Did not find any relations.
+
+$ ./restore.sh backups/shop-20261029-102637.dump
+== restauration logique de backups/shop-20261029-102637.dump
+ Container shopdata-db-1 Running 
+ Container shopdata-db-1 Waiting 
+ Container shopdata-db-1 Healthy 
+== vérification
+ orders |             checksum             
+--------+----------------------------------
+ 100000 | 5fedc4c8dd061b1717622df860b49434
+(1 row)
+

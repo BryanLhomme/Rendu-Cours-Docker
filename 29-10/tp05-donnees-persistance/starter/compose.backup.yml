@@ -1,0 +1,35 @@
+# Sidecar de sauvegarde planifiée pour la stack du TP04 :
+# docker compose -f ../../tp04-compose-entreprise/starter/compose.yml -f compose.backup.yml up -d --wait
+services:
+  backup:
+    image: prodrigestivill/postgres-backup-local:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: shop
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      SCHEDULE: ${BACKUP_SCHEDULE:-@every 1m}
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      HEALTHCHECK_PORT: 8080
+    # l'image ne vérifie sa santé que toutes les 5 min, trop lent pour up --wait
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 1"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    secrets:
+      - db_password
+    volumes:
+      - pgbackups:/backups
+    networks:
+      - back
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgbackups:

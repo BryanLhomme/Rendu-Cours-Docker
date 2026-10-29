@@ -1,0 +1,24 @@
+
+== 10:42:36 1. checksum avant (PG14)
+PostgreSQL 14.13 on x86_64-pc-linux-musl, compiled by gcc (Alpine 13.2.1_git20240309) 13.2.1 20240309, 64-bit
+   100000 5fedc4c8dd061b1717622df860b49434
+
+== 10:42:44 2. sauvegardes
+   4.9M dumpall-pg14-20261029-104236.sql
+   1.6M shop-pg14-20261029-104236.dump
+
+== 10:42:46 3. arrêt de PG14 (le volume shopdata_pgdata est conservé)
+   PG14 arrêté, début de l'indisponibilité
+
+== 10:42:47 4. PG16 sur le nouveau volume shopdata_pgdata16
+PostgreSQL 16.4 on x86_64-pc-linux-musl, compiled by gcc (Alpine 13.2.1_git20240309) 13.2.1 20240309, 64-bit
+
+== 10:42:54 5. restauration
+   restauré, indisponibilité : 9 s
+
+== 10:42:55 6. checksum après (PG16)
+   100000 5fedc4c8dd061b1717622df860b49434
+
+== 10:42:55 7. verdict
+   OK : checksums identiques (100000 5fedc4c8dd061b1717622df860b49434), PG16 en service
+   retour arrière : docker compose -f compose.pg16.yml stop db && docker compose up -d --wait
