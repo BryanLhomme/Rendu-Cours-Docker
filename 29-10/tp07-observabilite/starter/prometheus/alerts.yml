@@ -1,0 +1,45 @@
+groups:
+  - name: shop
+    rules:
+      - alert: ApiDown
+        expr: up{job="api"} == 0 or absent(up{job="api"})
+        for: 30s
+        labels: { severity: critical }
+        annotations:
+          summary: "API injoignable ({{ $labels.instance }})"
+
+      - alert: ApiErreurs5xx
+        expr: |
+          sum(rate(http_request_duration_seconds_count{job="api",status=~"5.."}[1m]))
+            / sum(rate(http_request_duration_seconds_count{job="api"}[1m])) > 0.05
+        for: 1m
+        labels: { severity: warning }
+        annotations:
+          summary: "Plus de 5 % de réponses 5xx sur l'API"
+
+      - alert: ApiLatenceP95
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job="api"}[5m]))) > 0.5
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "p95 de l'API au-dessus de 500 ms"
+
+      - alert: ConteneurRedemarre
+        # docker restart ne change pas container_start_time_seconds de cAdvisor :
+        # on regarde aussi l'heure de démarrage du processus exposée par l'API et le worker
+        expr: |
+          changes(process_start_time_seconds{job=~"api|worker"}[10m]) > 0
+            or changes(container_start_time_seconds{name!=""}[10m]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: "Redémarrage détecté ({{ $labels.job }}{{ $labels.name }} {{ $labels.instance }})"
+
+      - alert: MemoireProcheLimite
+        expr: |
+          container_memory_working_set_bytes{name!=""}
+            / (container_spec_memory_limit_bytes{name!=""} > 0) > 0.9
+        for: 1m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.name }} utilise plus de 90 % de sa limite mémoire"
