@@ -1,0 +1,8 @@
+CONTENEUR              USER       PRIV  CAP_DROP       CAP_ADD        RO  MEMOIRE  PIDS  NNP  SOCKET ECARTS
+shop-api-1             node       false -              -              non aucune   0     non  non    cap_drop rootfs_rw sans_limite_memoire sans_pids_limit sans_no_new_privileges
+shop-worker-1          10001      false -              -              non aucune   0     non  non    cap_drop rootfs_rw sans_limite_memoire sans_pids_limit sans_no_new_privileges
+shop-db-1              root       false -              -              non aucune   0     non  non    root cap_drop rootfs_rw sans_limite_memoire sans_pids_limit sans_no_new_privileges
+shop-redis-1           root       false -              -              non aucune   0     non  non    root cap_drop rootfs_rw sans_limite_memoire sans_pids_limit sans_no_new_privileges
+shop-proxy-1           root       false -              -              non aucune   0     non  oui    root cap_drop rootfs_rw sans_limite_memoire sans_pids_limit sans_no_new_privileges socket_docker
+
+Écarts : 29

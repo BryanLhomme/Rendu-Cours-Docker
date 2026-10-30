@@ -1,0 +1,9 @@
+CONTENEUR              USER       PRIV  CAP_DROP       CAP_ADD        RO  MEMOIRE  PIDS  NNP  SOCKET ECARTS
+shop-socket-proxy-1    root       false ALL            -              non 64M      100   oui  oui    root rootfs_rw socket_docker
+shop-api-1             node       false ALL            -              oui 256M     100   oui  non    OK
+shop-worker-1          10001      false ALL            -              oui 256M     100   oui  non    OK
+shop-db-1              70:70      false ALL            -              oui 512M     100   oui  non    OK
+shop-proxy-1           65534:65534 false ALL            -              oui 128M     100   oui  non    OK
+shop-redis-1           999:1000   false ALL            -              oui 128M     100   oui  non    OK
+
+Écarts : 3
